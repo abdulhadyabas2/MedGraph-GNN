@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MedGraph-GNN: Integrating Curated Knowledge Graphs with Large Language Models to Reduce Clinical Hallucinations</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'serif': ['Crimson Pro', 'Georgia', 'serif'],
+                        'sans': ['Inter', 'system-ui', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': '#1e40af',
+                        'primary-dark': '#1e3a8a',
+                        'accent': '#3b82f6',
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <style>
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+        }
+        .copy-btn:hover {
+            transform: scale(1.05);
+        }
+        .author-link:hover {
+            color: #3b82f6;
+        }
+        .icon-btn {
+            transition: all 0.2s ease;
+        }
+        .icon-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body class="font-sans bg-gray-50 text-gray-800">
+    
+    <!-- Header Section -->
+    <header class="gradient-bg text-white py-16 px-4">
+        <div class="max-w-5xl mx-auto text-center">
+            <!-- Paper Title -->
+            <h1 class="font-serif text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-8">
+                MedGraph-GNN: Integrating Curated Knowledge Graphs with Large Language Models to Reduce Clinical Hallucinations
+            </h1>
+            
+            <!-- Authors -->
+            <div class="mb-8">
+                <div class="flex flex-wrap justify-center items-center gap-x-4 gap-y-2 text-lg">
+                    <a href="#" class="author-link hover:underline transition-colors">
+                        Abdulhady Abas Abdullah<sup>1</sup>
+                    </a>
+                    <span class="hidden md:inline">•</span>
+                    <a href="#" class="author-link hover:underline transition-colors">
+                        Moloud Abdar<sup>2</sup>
+                    </a>
+                    <span class="hidden md:inline">•</span>
+                    <a href="#" class="author-link hover:underline transition-colors">
+                        Fatemeh Daneshfar<sup>3</sup>
+                    </a>
+                </div>
+                
+                <!-- Affiliations -->
+                <div class="mt-4 text-sm md:text-base text-white/90 space-y-1">
+                    <p><sup>1</sup> Artificial Intelligence and Innovation Centre, University of Kurdistan Hewler, Erbil, Iraq</p>
+                    <p><sup>2</sup> CHIRP, Child Health Research Centre, The University of Queensland, Brisbane, Australia</p>
+                    <p><sup>3</sup> Department of Computer Engineering, University of Kurdistan, Sanandaj, Iran</p>
+                </div>
+            </div>
+            
+            <!-- Resource Buttons -->
+            <div class="flex flex-wrap justify-center gap-4">
+                <a href="main_paper.pdf" target="_blank" class="icon-btn inline-flex items-center gap-2 bg-white text-primary font-semibold px-6 py-3 rounded-lg shadow-lg hover:bg-gray-100 transition-all">
+                    <i class="fas fa-file-pdf text-red-600"></i>
+                    Paper (PDF)
+                </a>
+                <a href="#" class="icon-btn inline-flex items-center gap-2 bg-white text-primary font-semibold px-6 py-3 rounded-lg shadow-lg hover:bg-gray-100 transition-all">
+                    <i class="fab fa-github text-gray-800"></i>
+                    Code (GitHub)
+                </a>
+                <a href="#" class="icon-btn inline-flex items-center gap-2 bg-white text-primary font-semibold px-6 py-3 rounded-lg shadow-lg hover:bg-gray-100 transition-all">
+                    <i class="fas fa-database text-green-600"></i>
+                    Dataset
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-5xl mx-auto px-4 py-12">
+        
+        <!-- Abstract Section -->
+        <section class="mb-12">
+            <h2 class="font-serif text-2xl md:text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                <i class="fas fa-book-open text-primary"></i>
+                Abstract
+            </h2>
+            <div class="bg-white rounded-xl shadow-md p-6 md:p-8 border-l-4 border-primary">
+                <p class="text-gray-700 leading-relaxed text-justify">
+                    Hallucinations in medical Large Language Models (LLMs) pose critical patient safety risks, manifesting as both fabricated factual content and invalid reasoning chains. We present <strong>Medical Graph-Enhanced Graph Neural Network (MedGraph-GNN)</strong>, a novel architecture that deeply integrates Attributed Relational Graphs (ARGs) with Graph Neural Networks (GNNs) to systematically suppress hallucinations in clinical question-answering systems. Our approach combines a relation-aware GNN retriever that extracts multi-hop subgraphs encoding complex clinical dependencies, a Graph-of-Thought reasoning module employing belief propagation over structured hypothesis spaces, ARG-based verification with constrained decoding to enforce factual grounding, and Circuit-based Reasoning Verification (CRV) that performs white-box analysis of model internals to detect and correct reasoning errors. Comprehensive evaluation on MedQA-USMLE and Med-HALT benchmarks (5 independent random seeds, 95% confidence intervals) demonstrates that MedGraph-GNN significantly outperforms the base model on MedQA as well as text-based retrieval-augmented generation, GraphRAG, and knowledge graph prompting baselines. Hallucination rates decrease substantially, while CRV performs well at error detection and achieves a solid correction success rate. The system provides full auditable provenance traces, essential for clinical deployment and regulatory oversight.
+                </p>
+                
+                <!-- Keywords -->
+                <div class="mt-6 pt-4 border-t border-gray-200">
+                    <span class="font-semibold text-gray-900">Keywords:</span>
+                    <div class="flex flex-wrap gap-2 mt-2">
+                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">Medical Hallucination</span>
+                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">Large Language Models</span>
+                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">Graph Neural Networks</span>
+                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">Knowledge Graphs</span>
+                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">Retrieval-Augmented Generation</span>
+                        <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">Factual Verification</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Visuals Section -->
+        <section class="mb-12">
+            <h2 class="font-serif text-2xl md:text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                <i class="fas fa-image text-primary"></i>
+                Architecture Overview
+            </h2>
+            
+            <!-- Figure 1: Architecture Overview -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+                <div class="bg-gradient-to-r from-blue-50 to-purple-50 p-4">
+                    <a href="figures/figure1.png" target="_blank">
+                        <img src="figures/figure1.png" alt="MedGraph-GNN Architecture Overview" class="w-full rounded-lg shadow-inner hover:opacity-95 transition-opacity cursor-zoom-in" />
+                    </a>
+                </div>
+                <div class="p-6 bg-gray-50">
+                    <p class="text-gray-600 text-sm text-center">
+                        <strong>Figure 1:</strong> MedGraph-GNN architecture overview showing (a) Baseline LLM vs. MedGraph-GNN hallucination detection, and (b) complete pipeline with detail views of multi-hop retrieval, semantic clustering, and CRV attribution.
+                    </p>
+                    <div class="text-center mt-3">
+                        <a href="figures/figure1.png" target="_blank" class="inline-flex items-center gap-2 text-primary hover:underline text-sm font-medium">
+                            <i class="fas fa-search-plus"></i>
+                            Click to Enlarge
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Figure 2: Clinical Reasoning -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden mb-8">
+                <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-4">
+                    <a href="figures/figure2.png" target="_blank">
+                        <img src="figures/figure2.png" alt="From Hallucinated to Verified Clinical Reasoning" class="w-full rounded-lg shadow-inner hover:opacity-95 transition-opacity cursor-zoom-in" />
+                    </a>
+                </div>
+                <div class="p-6 bg-gray-50">
+                    <p class="text-gray-600 text-sm text-center">
+                        <strong>Figure 2:</strong> From hallucinated to verified clinical reasoning. (a) Baseline LLMs may produce confident but unsupported diagnoses, while MedGraph-GNN retrieves structured medical knowledge and verifies reasoning steps using CRV. (b-d) Performance comparisons showing CRV error detection accuracy, hallucination reduction on Med-HALT, and ablation results.
+                    </p>
+                    <div class="text-center mt-3">
+                        <a href="figures/figure2.png" target="_blank" class="inline-flex items-center gap-2 text-primary hover:underline text-sm font-medium">
+                            <i class="fas fa-search-plus"></i>
+                            Click to Enlarge
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Figure 3: Framework Overview -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden">
+                <div class="bg-gradient-to-r from-green-50 to-teal-50 p-4">
+                    <a href="figures/figure3.png" target="_blank">
+                        <img src="figures/figure3.png" alt="MedGraph-GNN Framework Overview" class="w-full rounded-lg shadow-inner hover:opacity-95 transition-opacity cursor-zoom-in" />
+                    </a>
+                </div>
+                <div class="p-6 bg-gray-50">
+                    <p class="text-gray-600 text-sm text-center">
+                        <strong>Figure 3:</strong> Comprehensive overview of the MedGraph-GNN framework for combating hallucinations in medical LLMs.
+                    </p>
+                    <div class="text-center mt-3">
+                        <a href="figures/figure3.png" target="_blank" class="inline-flex items-center gap-2 text-primary hover:underline text-sm font-medium">
+                            <i class="fas fa-search-plus"></i>
+                            Click to Enlarge
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Key Contributions Section -->
+        <section class="mb-12">
+            <h2 class="font-serif text-2xl md:text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                <i class="fas fa-lightbulb text-primary"></i>
+                Key Contributions
+            </h2>
+            <div class="bg-white rounded-xl shadow-md p-6 md:p-8">
+                <ul class="space-y-4">
+                    <li class="flex items-start gap-4">
+                        <span class="flex-shrink-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm">1</span>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Relation-Aware GNN Retrieval Architecture</h3>
+                            <p class="text-gray-600 mt-1">Exploits typed medical relations to extract multi-hop subgraphs encoding complex clinical dependencies, outperforming text-based and untyped graph retrieval baselines.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-4">
+                        <span class="flex-shrink-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm">2</span>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Graph-of-Thought Reasoning Module</h3>
+                            <p class="text-gray-600 mt-1">Organizes intermediate hypotheses in a graph structure and employs belief propagation to aggregate evidence and detect logical contradictions across multiple reasoning paths.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-4">
+                        <span class="flex-shrink-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm">3</span>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">ARG-Based Verification System</h3>
+                            <p class="text-gray-600 mt-1">Maps generated claims to knowledge graph triples, providing both post-hoc validation and training-time reward signals that penalize unsupported content.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-4">
+                        <span class="flex-shrink-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm">4</span>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Comprehensive Empirical Evaluation</h3>
+                            <p class="text-gray-600 mt-1">Rigorous evaluation on MedQA-USMLE and Med-HALT benchmarks with 5 independent random seeds, 95% confidence intervals, and systematic ablation studies.</p>
+                        </div>
+                    </li>
+                    <li class="flex items-start gap-4">
+                        <span class="flex-shrink-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm">5</span>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Circuit-Based Reasoning Verification (CRV)</h3>
+                            <p class="text-gray-600 mt-1">A novel white-box verification method achieving AUROC 0.87 for error detection and successfully correcting 67% of flagged reasoning steps through targeted model interventions.</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- Results Highlights -->
+        <section class="mb-12">
+            <h2 class="font-serif text-2xl md:text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                <i class="fas fa-chart-bar text-primary"></i>
+                Key Results
+            </h2>
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-xl shadow-md p-6 text-center border-t-4 border-green-500">
+                    <div class="text-4xl font-bold text-green-600 mb-2">73%</div>
+                    <div class="text-gray-600">Hallucination Reduction</div>
+                    <p class="text-sm text-gray-500 mt-2">Decreased from 22.3% to 6.1%</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-md p-6 text-center border-t-4 border-blue-500">
+                    <div class="text-4xl font-bold text-blue-600 mb-2">0.87</div>
+                    <div class="text-gray-600">CRV Error Detection AUROC</div>
+                    <p class="text-sm text-gray-500 mt-2">White-box reasoning verification</p>
+                </div>
+                <div class="bg-white rounded-xl shadow-md p-6 text-center border-t-4 border-purple-500">
+                    <div class="text-4xl font-bold text-purple-600 mb-2">67%</div>
+                    <div class="text-gray-600">Correction Success Rate</div>
+                    <p class="text-sm text-gray-500 mt-2">Flagged reasoning steps corrected</p>
+                </div>
+            </div>
+            
+            <!-- Results Paragraph -->
+            <div class="bg-white rounded-xl shadow-md p-6 md:p-8 mt-8">
+                <p class="text-gray-700 leading-relaxed text-justify">
+                    Comprehensive evaluation on MedQA-USMLE and Med-HALT benchmarks (5 independent random seeds, 95% confidence intervals) demonstrates that MedGraph-GNN achieves <strong>81.5 ± 1.2%</strong> accuracy on MedQA, significantly outperforming the base model (72.8 ± 0.9%, p < 0.001) as well as text-based retrieval-augmented generation (76.0%), GraphRAG (77.8%), and knowledge graph prompting (78.5%) baselines. Hallucination rates decrease by <strong>73%</strong> (from 22.3 ± 2.1% to 6.1 ± 0.8%), while CRV achieves <strong>AUROC 0.87</strong> for error detection with <strong>67%</strong> successful correction rate. The system provides full auditable provenance traces, essential for clinical deployment and regulatory oversight. MedGraph-GNN inference latency is 7.4s per query with CRV enabled (5.6s without CRV); graph retrieval accounts for 2.1s, reasoning 1.8s, and CRV 1.8s.
+                </p>
+            </div>
+        </section>
+
+        <!-- Databases & Benchmarks Section -->
+        <section class="mb-12">
+            <h2 class="font-serif text-2xl md:text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                <i class="fas fa-database text-primary"></i>
+                Databases & Benchmarks
+            </h2>
+            
+            <!-- Knowledge Sources -->
+            <div class="bg-white rounded-xl shadow-md p-6 md:p-8 mb-6">
+                <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <i class="fas fa-project-diagram text-green-600"></i>
+                    Knowledge Graph Sources
+                </h3>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    The Attributed Relational Graph (ARG) is assembled from curated biomedical sources with documented provenance, providing a comprehensive foundation for clinical knowledge grounding:
+                </p>
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                        <div class="font-semibold text-blue-800">UMLS</div>
+                        <div class="text-2xl font-bold text-blue-600">48.2%</div>
+                        <p class="text-sm text-gray-600 mt-1">Unified Medical Language System - core medical terminology</p>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-4 border border-green-200">
+                        <div class="font-semibold text-green-800">RxNorm</div>
+                        <div class="text-2xl font-bold text-green-600">17.1%</div>
+                        <p class="text-sm text-gray-600 mt-1">Clinical drug nomenclature and relationships</p>
+                    </div>
+                    <div class="bg-purple-50 rounded-lg p-4 border border-purple-200">
+                        <div class="font-semibold text-purple-800">DrugBank</div>
+                        <div class="text-2xl font-bold text-purple-600">14.3%</div>
+                        <p class="text-sm text-gray-600 mt-1">Drug-target interactions and pharmacology</p>
+                    </div>
+                    <div class="bg-orange-50 rounded-lg p-4 border border-orange-200">
+                        <div class="font-semibold text-orange-800">FDA Drug Labels</div>
+                        <div class="text-2xl font-bold text-orange-600">8.7%</div>
+                        <p class="text-sm text-gray-600 mt-1">Official drug labeling and safety information</p>
+                    </div>
+                    <div class="bg-teal-50 rounded-lg p-4 border border-teal-200">
+                        <div class="font-semibold text-teal-800">Clinical Guidelines</div>
+                        <div class="text-2xl font-bold text-teal-600">6.4%</div>
+                        <p class="text-sm text-gray-600 mt-1">Evidence-based clinical practice recommendations</p>
+                    </div>
+                    <div class="bg-pink-50 rounded-lg p-4 border border-pink-200">
+                        <div class="font-semibold text-pink-800">PubMed Literature</div>
+                        <div class="text-2xl font-bold text-pink-600">5.3%</div>
+                        <p class="text-sm text-gray-600 mt-1">Peer-reviewed medical research articles</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Evaluation Benchmarks -->
+            <div class="bg-white rounded-xl shadow-md p-6 md:p-8">
+                <h3 class="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                    <i class="fas fa-tasks text-blue-600"></i>
+                    Evaluation Benchmarks
+                </h3>
+                <p class="text-gray-700 leading-relaxed mb-4">
+                    Our empirical evaluation uses a comprehensive mix of medical QA benchmarks to measure exam-style reasoning, factual recall, clinical note grounding, and domain-specific inference:
+                </p>
+                <div class="space-y-3">
+                    <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                        <span class="flex-shrink-0 w-10 h-10 bg-primary text-white rounded-lg flex items-center justify-center">
+                            <i class="fas fa-graduation-cap"></i>
+                        </span>
+                        <div>
+                            <h4 class="font-semibold text-gray-900">MedQA-USMLE</h4>
+                            <p class="text-sm text-gray-600">USMLE-style multiple-choice questions covering core clinical domains; tests multi-step clinical reasoning.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                        <span class="flex-shrink-0 w-10 h-10 bg-red-500 text-white rounded-lg flex items-center justify-center">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </span>
+                        <div>
+                            <h4 class="font-semibold text-gray-900">Med-HALT</h4>
+                            <p class="text-sm text-gray-600">Targeted hallucination benchmark (False-Confidence, NOTA, Fake Questions, Memory probes) for measuring unsupported or fabricated claims.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                        <span class="flex-shrink-0 w-10 h-10 bg-green-500 text-white rounded-lg flex items-center justify-center">
+                            <i class="fas fa-book-medical"></i>
+                        </span>
+                        <div>
+                            <h4 class="font-semibold text-gray-900">MedMCQA & PubMedQA</h4>
+                            <p class="text-sm text-gray-600">Large-scale multiple-choice and research-paper-derived yes/no/factoid items for factual consistency checks.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                        <span class="flex-shrink-0 w-10 h-10 bg-yellow-500 text-white rounded-lg flex items-center justify-center">
+                            <i class="fas fa-file-medical-alt"></i>
+                        </span>
+                        <div>
+                            <h4 class="font-semibold text-gray-900">CliCR & emrQA</h4>
+                            <p class="text-sm text-gray-600">Clinical reading comprehension and EHR-derived QA for document-grounded reasoning over clinical texts.</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
+                        <span class="flex-shrink-0 w-10 h-10 bg-purple-500 text-white rounded-lg flex items-center justify-center">
+                            <i class="fas fa-brain"></i>
+                        </span>
+                        <div>
+                            <h4 class="font-semibold text-gray-900">MedNLI</h4>
+                            <p class="text-sm text-gray-600">Clinical natural language inference dataset for testing entailment/contradiction detection in clinical statements.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- BibTeX Citation Section -->
+        <section class="mb-12">
+            <h2 class="font-serif text-2xl md:text-3xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+                <i class="fas fa-quote-left text-primary"></i>
+                Citation
+            </h2>
+            <div class="bg-gray-900 rounded-xl shadow-md overflow-hidden">
+                <div class="flex items-center justify-between px-4 py-3 bg-gray-800">
+                    <span class="text-gray-300 font-medium">BibTeX</span>
+                    <button onclick="copyBibtex()" class="copy-btn flex items-center gap-2 bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg transition-all">
+                        <i class="fas fa-copy"></i>
+                        <span id="copyText">Copy</span>
+                    </button>
+                </div>
+                <pre id="bibtex" class="p-6 text-green-400 text-sm overflow-x-auto"><code>@article{abdullah2026medgraphgnn,
+  author    = {Abdullah, Abdulhady Abas and 
+               Abdar, Moloud and 
+               Daneshfar, Fatemeh},
+  title     = {MedGraph-GNN: Integrating Curated Knowledge 
+               Graphs with Large Language Models to Reduce 
+               Clinical Hallucinations},
+  journal   = {[Journal Name]},
+  year      = {2026},
+  volume    = {},
+  pages     = {},
+  doi       = {},
+  note      = {Under Review}
+}</code></pre>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white py-12 px-4">
+        <div class="max-w-5xl mx-auto">
+            <!-- Acknowledgments -->
+            <div class="mb-8">
+                <h3 class="font-serif text-xl font-bold mb-4">Acknowledgments</h3>
+                <p class="text-gray-400 leading-relaxed">
+                    We thank the reviewers for their constructive feedback. This research was supported by the University of Kurdistan Hewler, The University of Queensland, and the University of Kurdistan. We acknowledge the use of UMLS, RxNorm, DrugBank, and other biomedical knowledge resources that enabled this work.
+                </p>
+            </div>
+            
+            <!-- Contact -->
+            <div class="border-t border-gray-700 pt-8">
+                <h3 class="font-serif text-xl font-bold mb-4">Contact</h3>
+                <div class="flex flex-wrap gap-6 text-gray-400">
+                    <a href="mailto:a.abdullah@ukh.edu.krd" class="hover:text-white transition-colors flex items-center gap-2">
+                        <i class="fas fa-envelope"></i>
+                        a.abdullah@ukh.edu.krd
+                    </a>
+                    <a href="#" class="hover:text-white transition-colors flex items-center gap-2">
+                        <i class="fab fa-twitter"></i>
+                        @MedGraphGNN
+                    </a>
+                    <a href="#" class="hover:text-white transition-colors flex items-center gap-2">
+                        <i class="fab fa-github"></i>
+                        GitHub Repository
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Copyright -->
+            <div class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-500 text-sm">
+                <p>© 2026 MedGraph-GNN. All rights reserved.</p>
+                <p class="mt-2">Template designed for academic research presentation.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Copy to Clipboard Script -->
+    <script>
+        function copyBibtex() {
+            const bibtex = document.getElementById('bibtex').innerText;
+            navigator.clipboard.writeText(bibtex).then(() => {
+                const copyText = document.getElementById('copyText');
+                copyText.textContent = 'Copied!';
+                setTimeout(() => {
+                    copyText.textContent = 'Copy';
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy: ', err);
+            });
+        }
+    </script>
+</body>
+</html>
